@@ -1,0 +1,230 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+<div class="label-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h5>{{ index_column }}</h5>
+    <ul class="row-list">
+      {% for val in index_values %}
+      <li>
+        <button class="row-btn {% if loop.index0 == index %}active{% endif %}" data-row="{{ loop.index0 }}">
+          {{ val if val else '(empty)' }}
+        </button>
+      </li>
+      {% endfor %}
+    </ul>
+  </aside>
+
+  <!-- Main Panel -->
+  <section class="main-panel">
+    <div class="sticky-header">
+      <div class="header-top">
+        <h3>Label Rows</h3>
+        <small>
+          Row <span id="pos">{{ index + 1 }}</span> / <span id="total">{{ total }}</span>
+          (<em>{{ index_column }}</em>)
+        </small>
+      </div>
+    </div>
+
+    <!-- Toggle -->
+    <div class="toggle-bar">
+      <label class="checkbox-item small">
+        <input type="checkbox" id="toggle-raw" checked>
+        Show Raw Data
+      </label>
+    </div>
+
+    <!-- Data Tables -->
+    <div id="data-grid" class="data-grid">
+      <section class="scroll raw-section" id="raw-section">
+        <h5>Raw</h5>
+        <table>
+          <tbody id="raw">
+            {% for k, v in row.items() %}
+            <tr>
+              <th class="nowrap">{{ k }}</th>
+              <td class="mono">{{ v }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+
+      <section class="scroll highlighted-section" id="highlighted-section">
+        <h5>Highlighted</h5>
+        <table>
+          <tbody id="hl">
+            {% for k, v in row_highlighted.items() %}
+            <tr>
+              <th class="nowrap">{{ k }}</th>
+              <td class="mono">{{ v|safe }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+    </div>
+
+    <details>
+      <summary>Keywords</summary>
+      <code>{{ keywords }}</code>
+    </details>
+
+    <!-- Classification -->
+    <h5>Classify</h5>
+    <div id="class-buttons">
+      {% for c in classes %}
+      <button class="class-btn outline xsmall" data-label="{{ c }}">{{ c }}</button>
+      {% endfor %}
+      <button id="auto" class="contrast xsmall">✨ Get Suggestions from AI</button>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="nav-bottom">
+      <button id="first" class="outline small">⏮ First</button>
+      <button id="prev" class="outline small">◀ Prev</button>
+      <button id="next" class="outline small">Next ▶</button>
+      <button id="last" class="outline small">Last ⏭</button>
+    </div>
+  </section>
+</div>
+
+<style>
+  /* Layout grid */
+  .data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    transition: grid-template-columns 0.2s ease;
+  }
+
+  /* When raw is hidden → highlighted expands */
+  .data-grid.single-col {
+    grid-template-columns: 1fr;
+  }
+
+  /* Hide raw section */
+  .raw-section.hidden {
+    display: none !important;
+  }
+
+  .toggle-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin: 0.4rem 0 0.5rem;
+  }
+
+  .nav-bottom {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.2rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .nav-bottom button {
+    min-width: 80px;
+  }
+</style>
+
+<script>
+  /* ✅ Show/Hide Raw Data toggle (fixed) */
+  const toggleRaw = document.getElementById('toggle-raw');
+  const rawSection = document.getElementById('raw-section');
+  const dataGrid = document.getElementById('data-grid');
+
+  toggleRaw.addEventListener('change', () => {
+    const show = toggleRaw.checked;
+    rawSection.classList.toggle('hidden', !show);
+    dataGrid.classList.toggle('single-col', !show);
+  });
+
+  /* ---------- Existing Logic ---------- */
+  function updateRow(data) {
+    document.getElementById('pos').innerText = (data.index + 1);
+    document.getElementById('total').innerText = data.total;
+
+    const raw = document.getElementById('raw');
+    raw.innerHTML = '';
+    for (const [k, v] of Object.entries(data.row)) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<th class="nowrap">${k}</th><td class="mono"></td>`;
+      tr.children[1].innerText = v === null ? '' : v;
+      raw.appendChild(tr);
+    }
+
+    const hl = document.getElementById('hl');
+    hl.innerHTML = '';
+    for (const [k, v] of Object.entries(data.row_highlighted)) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<th class="nowrap">${k}</th><td class="mono">${v}</td>`;
+      hl.appendChild(tr);
+    }
+
+    document.querySelectorAll('.row-btn').forEach(b => b.classList.remove('active'));
+    const active = document.querySelector(`.row-btn[data-row='${data.index}']`);
+    if (active) active.classList.add('active');
+  }
+
+  document.querySelectorAll('.row-btn').forEach(btn =>
+    btn.addEventListener('click', async () => {
+      const row = parseInt(btn.dataset.row);
+      const r = await fetch("{{ url_for('goto_row') }}", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ row })
+      });
+      const data = await r.json();
+      if (data.error) { alert(data.error); return; }
+      updateRow(data);
+    })
+  );
+
+  async function nav(direction) {
+    const r = await fetch("{{ url_for('navigate') }}", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ direction })
+    });
+    const data = await r.json();
+    if (data.error) { alert(data.error); return; }
+    updateRow(data);
+  }
+
+  ['first', 'prev', 'next', 'last'].forEach(id =>
+    document.getElementById(id).addEventListener('click', () => nav(id))
+  );
+
+  document.querySelectorAll('.class-btn').forEach(btn =>
+    btn.addEventListener('click', async () => {
+      const label = btn.dataset.label;
+      const r = await fetch("{{ url_for('set_class') }}", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label })
+      });
+      const data = await r.json();
+      if (data.error) { alert(data.error); return; }
+      btn.blur();
+      location.reload(); 
+    })
+  );
+
+  document.getElementById('auto').addEventListener('click', async () => {
+    document.getElementById('auto').innerText = "⌛ Thinking..."
+    const r = await fetch("{{ url_for('auto_classify') }}", { method: 'POST' });
+    const data = await r.json();
+    if (!data.ok) {
+      alert('Gemini unavailable or failed: ' + (data.meta && (data.meta.error || data.meta.raw) || ''));
+      return;
+    }
+    alert('Predicted: ' + data.meta.raw);
+    document.getElementById('auto').innerText = "✨ Get Suggestions from AI";
+  });
+</script>
+
+{% endblock %}

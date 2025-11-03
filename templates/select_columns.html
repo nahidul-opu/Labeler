@@ -1,0 +1,76 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section>
+  <h2>🧾 Select Columns</h2>
+  <p class="lead">
+    Choose which columns from <strong>{{ fname }}</strong> you’d like to include for classification.
+  </p>
+
+  <article class="card">
+    <form action="{{ url_for('load_selected_columns') }}" method="post">
+      <fieldset>
+        <legend><strong>Available Columns</strong></legend>
+
+        <!-- ✅ Select All Checkbox -->
+        <div class="select-all-bar">
+          <label class="checkbox-item small">
+            <input type="checkbox" id="select-all">
+            Select / Deselect All
+          </label>
+        </div>
+
+        <!-- Column Checkboxes -->
+        <div class="columns-list" id="columns-container">
+          {% for c in columns %}
+          <label class="checkbox-item">
+            <input type="checkbox" name="columns" value="{{ c }}">
+            {{ c }}
+          </label>
+          {% endfor %}
+        </div>
+      </fieldset>
+
+      <!-- Index Column Selection -->
+      <fieldset style="margin-top: 1rem;">
+        <legend><strong>Select Index Column</strong></legend>
+        <select name="index_column" required style="width:100%;">
+          <option value="">-- Choose index column --</option>
+          {% for c in columns %}
+          <option value="{{ c }}">{{ c }}</option>
+          {% endfor %}
+        </select>
+      </fieldset>
+
+      <button type="submit" class="contrast" style="margin-top: 1.5rem; width:100%;">
+        ✅ Load Selected Columns
+      </button>
+    </form>
+  </article>
+</section>
+
+<style>
+  .select-all-bar {
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>
+
+<script>
+  /* ✅ Select / Deselect All Columns */
+  const selectAll = document.getElementById('select-all');
+  const checkboxes = document.querySelectorAll('#columns-container input[type="checkbox"]');
+
+  selectAll.addEventListener('change', () => {
+    checkboxes.forEach(cb => cb.checked = selectAll.checked);
+  });
+
+  /* Keep "Select All" state in sync */
+  checkboxes.forEach(cb => {
+    cb.addEventListener('change', () => {
+      const allChecked = Array.from(checkboxes).every(c => c.checked);
+      selectAll.checked = allChecked;
+    });
+  });
+</script>
+{% endblock %}
