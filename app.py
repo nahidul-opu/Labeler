@@ -347,16 +347,3 @@ def download_labeled():
 # ── Entry ────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-# ── Example .config (place in project root) ──────────────────────────────────
-# [APP]
-# UPLOAD_FOLDER = uploads
-# KEYWORDS = ["urgent", "error", "payment", "refund", "fail"]
-# CLASSES = ["positive", "neutral", "negative"]
-# HIGHLIGHT_COLOR = #fffd75
-#
-# [GEMINI]
-# API_KEY = YOUR_GOOGLE_API_KEY
-# MODEL = gemini-1.5-pro
-# PROMPT = "Please classify the following text into one of {classes}. Respond with JSON: {\"label\": <label>, \"confidence\": <0..1>}"
