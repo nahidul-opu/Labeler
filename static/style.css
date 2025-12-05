@@ -13,16 +13,16 @@ body {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   margin: 0;
   padding: 0;
-  font-size: 0.9rem;
+  font-size: 0.5rem;
 }
 
 /* ──────────────── Header / Navbar ──────────────── */
 header {
   background: var(--primary-color);
   color: white;
-  padding: 0.7rem 0;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  font-size: 0.95rem;
+  padding: 0rem 0;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  font-size: 0.55rem;
 }
 
 header nav {
@@ -31,11 +31,11 @@ header nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 1rem;
+  padding: 0 0rem;
 }
 
 header h1 {
-  font-size: 1.1rem;
+  font-size: 0.5rem;
   margin: 0;
 }
 
@@ -55,7 +55,7 @@ header a:hover {
   padding: 0.6rem 0.9rem;
   border-radius: 6px;
   margin-bottom: 0.8rem;
-  font-size: 0.85rem;
+  font-size: 0.55rem;
   font-weight: 500;
 }
 
@@ -79,7 +79,7 @@ button,
 input[type="submit"],
 a[role="button"] {
   font-weight: 500;
-  font-size: 0.85rem;
+  font-size: 0.55rem;
   border-radius: 4px;
   padding: 0.35rem 0.7rem;
   transition: background 0.2s ease, opacity 0.2s ease;
@@ -109,12 +109,12 @@ a[role="button"].outline:hover {
 
 /* Size variants */
 .small {
-  font-size: 0.8rem !important;
+  font-size: 0.5rem !important;
   padding: 0.25rem 0.6rem !important;
 }
 
 .xsmall {
-  font-size: 0.75rem !important;
+  font-size: 0.5rem !important;
   padding: 0.2rem 0.4rem !important;
 }
 
@@ -122,7 +122,7 @@ a[role="button"].outline:hover {
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.8rem;
+  font-size: 0.5rem;
 }
 
 thead th {
@@ -184,7 +184,7 @@ h2, h3, h4, h5 {
   text-align: center;
   color: #64748b;
   margin-bottom: 1.5rem;
-  font-size: 0.9rem;
+  font-size: 0.5rem;
 }
 
 .card {
@@ -222,7 +222,7 @@ h2, h3, h4, h5 {
   border-radius: 6px;
   padding: 0.3rem 0.5rem;
   transition: background 0.2s ease, border 0.2s ease;
-  font-size: 0.85rem;
+  font-size: 0.55rem;
 }
 
 .checkbox-item:hover {
@@ -248,7 +248,7 @@ h2, h3, h4, h5 {
   padding: 0.5rem;
   max-height: 85vh;
   overflow-y: auto;
-  font-size: 0.85rem;
+  font-size: 0.55rem;
 }
 
 .sidebar h5 {
@@ -271,7 +271,7 @@ h2, h3, h4, h5 {
   border-radius: 4px;
   padding: 0.25rem 0;
   background: transparent;
-  font-size: 0.8rem;
+  font-size: 0.5rem;
   color: #334155;
   cursor: pointer;
   transition: background 0.2s ease;
@@ -298,7 +298,7 @@ h2, h3, h4, h5 {
 
 .sticky-header h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.5rem;
 }
 
 .sticky-header small {
@@ -334,7 +334,7 @@ footer {
   margin-top: 2rem;
   padding: 1rem;
   text-align: center;
-  font-size: 0.8rem;
+  font-size: 0.5rem;
   color: #64748b;
 }
 

@@ -6,6 +6,7 @@ import json
 import configparser
 import pathlib
 from datetime import datetime
+import markdown
 
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -25,6 +26,7 @@ script_directory = str(pathlib.Path(__file__).parent.resolve())
 config = configparser.ConfigParser()
 config.read(script_directory + "/.config")
 
+seed = 42
 
 app.config["UPLOAD_FOLDER"] = config.get("APP", "UPLOAD_FOLDER", fallback= script_directory + "/uploads")
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
@@ -75,7 +77,9 @@ def load_dataframe(path, selected_columns=None):
     if selected_columns:
         keep = [c for c in selected_columns if c in df_local.columns]
         df_local = df_local[keep]
-    return df_local.reset_index(drop=True)
+    
+    df_local = df_local.sample(frac=1, random_state=seed).reset_index(drop=True)
+    return df_local
 
 
 def highlight_keywords(text, keywords=KEYWORDS):
@@ -225,6 +229,8 @@ def label_view():
         return redirect(url_for("index"))
     row = df.iloc[current_index].to_dict()
     highlighted = {k: highlight_keywords(v) for k, v in row.items()}
+
+    highlighted["body"] = markdown.markdown(highlighted["body"]) if "body" in highlighted else highlighted.get("body", "")
     index_values = df[index_column].fillna("").astype(str).tolist()  # <-- sidebar labels
 
     return render_template(
@@ -260,6 +266,8 @@ def navigate():
     df_filled = df.fillna('')
     row = df_filled.iloc[current_index].to_dict()
     highlighted = {k: highlight_keywords(v) for k, v in row.items()}
+
+    highlighted["body"] = markdown.markdown(highlighted["body"]) if "body" in highlighted else highlighted.get("body", "")
     return jsonify({
         "index": current_index,
         "total": len(df),
@@ -283,6 +291,8 @@ def goto_row():
     df_filled = df.fillna('')
     row = df_filled.iloc[current_index].to_dict()
     highlighted = {k: highlight_keywords(v) for k, v in row.items()}
+
+    highlighted["body"] = markdown.markdown(highlighted["body"]) if "body" in highlighted else highlighted.get("body", "")
     return jsonify({"index": current_index, "total": len(df), "row": row, "row_highlighted": highlighted})
 
 @app.route("/set_class", methods=["POST"]) 
